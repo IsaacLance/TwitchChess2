@@ -1,0 +1,4 @@
+Isaac:
+This week I finished the main part of the IRC bot, now I just have to add some logic that should be easy.
+Starting to learn how to multithread the two parts of the project but I'm not sure the best way to go about it.
+Lots of progress! Feels good.
