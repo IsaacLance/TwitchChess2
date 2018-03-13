@@ -2,3 +2,6 @@ Isaac:
 This week I finished the main part of the IRC bot, now I just have to add some logic that should be easy.
 Starting to learn how to multithread the two parts of the project but I'm not sure the best way to go about it.
 Lots of progress! Feels good.
+
+Justin:
+I was out of town for a wedding this weekend so I did not make as much progress as I wanted to but I am almost done with my part of the project and will push my progress as soon as possible.
