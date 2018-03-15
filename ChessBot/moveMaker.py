@@ -17,11 +17,13 @@ class MoveMaker:
         self.browser.find_element_by_xpath('//*[@id="sidebar"]/section[2]/form/div[5]/button').click()
 
     def startComputerGame(self):
+        print("Starting game")
         self.browser.get('https://www.chess.com/play/computer')
 
         self.board = self.browser.find_element_by_xpath('//*[@id="chessboard_boardarea"]')
         self.squareSize = self.board.get_attribute('style').split()[-1]
         self.squareSize = int(int(self.squareSize[:-3]) / 8)
+        time.sleep(1)
 
     def move(self, pieceToMove, whereToMove):
         # pieceToMove and whereToMove are strings that give the location of the squares that a piece is located and
@@ -42,7 +44,6 @@ class MoveMaker:
     def getBoard(self):
         newBoard = [[None] * 8 for x in range(8)]
         l = self.browser.find_elements_by_class_name('chess_com_piece')
-        print(len(l))
         for i in l:
             src = i.get_attribute('src')[-6:][:-4]
             i = i.get_attribute('style').split()
@@ -50,8 +51,6 @@ class MoveMaker:
             row = i[-1][:-4]
             newBoard[int(row)//self.squareSize][int(col)//self.squareSize] = src
 
-        for i in newBoard:
-            print(i)
         return newBoard
 
 
