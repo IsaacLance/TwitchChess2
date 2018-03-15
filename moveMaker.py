@@ -1,4 +1,3 @@
-from selenium.common.exceptions import NoSuchElementException
 from selenium import webdriver
 import time
 
@@ -19,35 +18,10 @@ class MoveMaker:
 
     def startComputerGame(self):
         self.browser.get('https://www.chess.com/play/computer')
-        try:
-            self.browser.find_element_by_xpath('//*[@id="content"]/div[1]/div/div/div/h2/button').click()
-
-        except NoSuchElementException:
-            print('There was no ad')
 
         self.board = self.browser.find_element_by_xpath('//*[@id="chessboard_boardarea"]')
-
-    def drag(self, i, j):
-        # pieceToMove and whereToMove are strings that give the location of the squares that a piece is located and
-        # where to move to
-        # String should be in format A-H are the columns and 1-8 are the rows
-        # Ex. A1 is the bottom left corner, H8 is the top right corner
-        # This function runs assuming that the move is already valid. That will be checked before being called
         self.squareSize = self.board.get_attribute('style').split()[-1]
         self.squareSize = int(int(self.squareSize[:-3]) / 8)
-        action = webdriver.common.action_chains.ActionChains(self.browser)
-        x1 = (self.constant.index(i[0]))
-        y1 = (8 - int(i[1]))
-        print(x1, y1)
-        x2 = self.constant.index(j[0]) - x1
-        y2 = (8 - int(j[1])) - y1
-        print(x2, y2)
-
-        action.move_to_element_with_offset(self.board, x1*self.squareSize + self.squareSize/2, y1*self.squareSize + self.squareSize/2).click_and_hold().perform()
-        for i in range(int(self.squareSize/2)):
-            action.move_by_offset(2*x2, 2*y2)
-        action.release()
-        action.perform()
 
     def move(self, pieceToMove, whereToMove):
         # pieceToMove and whereToMove are strings that give the location of the squares that a piece is located and
@@ -57,6 +31,7 @@ class MoveMaker:
         # This function runs assuming that the move is already valid. That will be checked before being called
         self.squareSize = self.board.get_attribute('style').split()[-1]
         self.squareSize = int(int(self.squareSize[:-3]) / 8)
+
         action = webdriver.common.action_chains.ActionChains(self.browser)
         print("Moving piece at {} to {}".format(pieceToMove, whereToMove))
 
@@ -64,32 +39,51 @@ class MoveMaker:
             action.move_to_element_with_offset(self.board, (self.constant.index(i[0]) * self.squareSize) + self.squareSize/2, (8 - int(i[1])) * self.squareSize + self.squareSize/2).perform()
             action.click().perform()
 
-    def get_piece(self):
-        pass
+    def getBoard(self):
+        newBoard = [[None] * 8 for x in range(8)]
+        l = self.browser.find_elements_by_class_name('chess_com_piece')
+        print(len(l))
+        for i in l:
+            src = i.get_attribute('src')[-6:][:-4]
+            i = i.get_attribute('style').split()
+            col = i[-2][10:-3]
+            row = i[-1][:-4]
+            newBoard[int(row)//self.squareSize][int(col)//self.squareSize] = src
+
+        for i in newBoard:
+            print(i)
+        return newBoard
 
 
-def main():
-    print("Starting up")
-    mm = MoveMaker()
-    print("Signing in")
-    mm.signin()
-    print("Starting game with comp")
-    mm.startComputerGame()
-    while True:
-        move = input("Please enter your move: ")
-        if move in "exit":
-            break
-
-        elif move in "reset":
-            mm.browser.refresh()
-
-        else:
-            try:
-                l = move.split()
-                mm.move(l[0], l[1])
-            except Exception as e:
-                print("That was not a valid move. Try Again")
 
 
-if __name__ == "__main__":
-    main()
+
+#def main():
+#    print("Starting up")
+#    mm = MoveMaker()
+#    print("Signing in")
+#    mm.signin()
+#    print("Starting game with comp")
+#    mm.startComputerGame()
+#    mm.getBoard()
+#    while True:
+#        move = raw_input("Please enter your move: ")
+#        if move in "exit":
+#            break
+#
+#        elif move in "reset":
+#            mm.browser.refresh()
+#
+#        else:
+#            try:
+#                l = move.split()
+#                mm.move(l[0], l[1])
+#                time.sleep(1)
+#                mm.getBoard()
+#            except Exception as e:
+#                print(e)
+#                print("That was not a valid move. Try Again")
+#
+
+#if __name__ == "__main__":
+#    main()

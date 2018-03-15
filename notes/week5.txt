@@ -1,3 +1,6 @@
 Justin:
 3/13
 I just finished the python bot we will use so now I am moving on to finishing the C++ side of things. After some thought Isaac and I decided that we were going to create a producer and consumer where the producer reads Twitch chat commands and the consumer will read them, check validity, and finally use our Python bot to make the move. We are also considering keeping a copy of the board as a 2-d array so we can do all the work with C++.
+
+3/14
+Just finished code that uses C++ to import my Python class. The next step will be to create a wrapper class in C++.
