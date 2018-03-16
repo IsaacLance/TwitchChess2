@@ -8,6 +8,7 @@ http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
 */
 
 #include "chessdriver.hpp"
+#include "consumer.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -27,9 +28,11 @@ http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
 #include <queue>
 #include <vector>
 #include <Python/Python.h>
-#include "consumer.hpp"
+#include <mutex>
+#include <map>
 
 using namespace std; //FIXME?: using std:"function" may be better
+using namespace std::chrono;
 #define PORT "6667" //Required by TWITCH.TV
 #define MAXDATASIZE 100 //Max we can recieve
 #define URL "irc.chat.twitch.tv" //Connect to this server
@@ -90,7 +93,9 @@ void ChessDriver::producer(){
 			if (parsed[0] != '^'){//If it's a valid command . . .
 				//cout << "Valid input--" <<parsed <<"\n"<< flush;
 				cout << "Middleman: " << middleman << flush;
+				queue_mutex.lock();
 				shared_queue.push(parsed);//Push it to the shared queue
+				queue_mutex.unlock();
 			}
 		}
 		
@@ -112,21 +117,98 @@ void ChessDriver::consumer(){
 	PyObject* instance = PyInstance_New(klass, NULL, NULL);
 	PyObject* result = PyObject_CallMethod(instance, "signin", NULL);
 	startGame(instance);
-	string s[8][8];
-
+	string board[8][8];
+	bool democracy = true;
+	steady_clock::time_point time1;
+	steady_clock::time_point time2;
 	while(true){
-		this_thread::sleep_for(10ms);
-		if(shared_queue.empty()){
-			continue;
+		if (democracy = true){
+			//Set times
+			time1 = steady_clock::now();
+			time2 = steady_clock::now();
+			duration<double> time_span;
+			//Set up maps, user -> command, and command -> count
+			map<string, string> votes;
+			map<string, int> tally;
+			//Set up vars
+			int winner_count = 0; //Update this if we make a count greater then it
+			string winner = "NoInput";
+			//Get a move democratically
+			while((time_span.count()) < 20.0){
+				this_thread::sleep_for(10ms); 
+				//Lock
+				queue_mutex.lock();
+				if(shared_queue.empty()){
+					//Unlock possible
+					queue_mutex.unlock();
+					continue;
+				}
+				string command = shared_queue.front();
+				shared_queue.pop();
+				queue_mutex.unlock();
+				//Unlocked
+				cout << "Consumed: "<< command<<"\n"<<flush;
+				//Get coords and check
+				string coords = command.substr(0,2) + command.substr(3,2);
+				if (isValid(board, coords)){
+					string name = command.substr(6, string::npos);
+					//Set the two map values since it was valid
+					votes[name] = coords;
+					tally[coords]++;     //If no entry exists, it is initialized to 0! Awesome
+					if (tally[coords] > winner_count){
+						//Set new winner
+						winner_count = tally[coords];
+						winner = coords;
+					}
+				}
+			time_span = duration_cast<duration<double>>(time2 - time1)
+			time2 = steady_clock::now();
+			}
+			if (winner_count > 0){
+				string chosen = getPiece(board, winner.substr(0,2));
+				move(instance, winner);
+				this_thread::sleep_for(2s)
+				updateBoard(instance, board);
+				if (getpiece(board, winner.substr(2,2)) != chosen){
+					democracy = false;
+				}
+			}
 		}
-		cout << "Consumed: "<< shared_queue.front()<<"\n"<<flush;
-		string loc1 = shared_queue.front().substr(0, 2);
-		string loc2 = shared_queue.front().substr(3, 2);
-		move(instance, loc1, loc2);
-		getBoards(instance, s);
-		shared_queue.pop();
+		else{ //ANARCHY MODE!!!
+			while(true){
+				this_thread::sleep_for(10ms); 
+				//Lock
+				queue_mutex.lock();
+				if(shared_queue.empty()){
+					//Unlock possible
+					queue_mutex.unlock();
+					continue;
+				}
+				string winner = shared_queue.front();
+				shared_queue.pop();
+				queue_mutex.unlock();
+				//Unlocked
+				cout << "(Anarchy) Consumed: "<< winner <<"\n"<<flush;
+				//Get coords and check
+				string coords = winner.substr(0,2) + winner.substr(3,2);
+				if (isValid(board, coords)){
+					string name = winner.substr(6, string::npos);
+					string chosen = getPiece(board, coords.substr(0,2));
+					move(instance, coords);
+					this_thread::sleep_for(2s);
+					updateBoard(instance, board);
+					if (getpiece(board, coords.substr(2,2)) != chosen){
+						democracy = false;
+						break;
+					}
+					else{
+						democracy = true;
+						break;
+					}
+				}
+			}
+		}
 	}
-	kill();
 }
 //
 //Private Methods

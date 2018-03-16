@@ -4,6 +4,7 @@
 #include <string>
 #include <vector>
 #include <thread>
+#include <mutex>
 
 class ChessDriver{
 	public:
@@ -19,6 +20,8 @@ class ChessDriver{
 		//Main two private methods, inf loops
 		void producer(/**/);
 		void consumer(/**/);
+		//Mutex
+		std::mutex queue_mutex;
 		//Threads vector
 		std::vector<std::thread> threads;
 		//Private vars for producer
