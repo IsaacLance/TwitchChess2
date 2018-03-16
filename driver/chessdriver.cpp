@@ -35,7 +35,7 @@ http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
 using namespace std; //FIXME?: using std:"function" may be better
 using namespace std::chrono;
 #define PORT "6667" //Required by TWITCH.TV
-#define MAXDATASIZE 100 //Max we can recieve
+#define MAXDATASIZE 33 //Max we can recieve
 #define URL "irc.chat.twitch.tv" //Connect to this server
 #define DEFAULT_CHANNEL "#yung_jrobes" //Connect to this channel
 //Public Methods
@@ -85,7 +85,7 @@ void ChessDriver::producer(){
 		//Begin parsing in this scope or we get problems.
 		buff[bytes_recieved] = '\0';//Null terminate so we can parse
 		middleman.append(buff); //Strings can append char*'s which is nice
-		cout << middleman + " 1 " << flush;
+		cout << "StartMIDDLE " << middleman << " ENDMIDDLE" << flush;
 		size_t end_index = middleman.find("\n"); //Need middleman to pre-process the data
 		if (end_index !=string::npos){
 			string msg = middleman.substr(0, end_index+1);//get one message
@@ -93,13 +93,14 @@ void ChessDriver::producer(){
 			string parsed = Parse(msg); //Parse the message. . .
 			if (parsed[0] != '^'){//If it's a valid command . . .
 				//cout << "Valid input--" <<parsed <<"\n"<< flush;
-				cout << "Middleman: " << middleman << flush;
+                cout << " PARSED " << endl;
+				cout << " Middleman: " << middleman << flush;
 				queue_mutex.lock();
 				shared_queue.push(parsed);//Push it to the shared queue
 				queue_mutex.unlock();
 			}
 		}
-		
+
 		//msgs.pop();
 		this_thread::sleep_for(10ms);
 		//this_thread::sleep_for(chrono::milliseconds(300));
