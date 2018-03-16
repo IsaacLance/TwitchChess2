@@ -122,7 +122,7 @@ void ChessDriver::consumer(){
 	steady_clock::time_point time1;
 	steady_clock::time_point time2;
 	while(true){
-		if (democracy = true){
+		if (democracy){
 			//Set times
 			time1 = steady_clock::now();
 			time2 = steady_clock::now();
@@ -197,11 +197,7 @@ void ChessDriver::consumer(){
 					move(instance, coords);
 					this_thread::sleep_for(2s);
 					updateBoard(instance, board);
-					if (getpiece(board, coords.substr(2,2)) != chosen){
-						democracy = false;
-						break;
-					}
-					else{
+					if (getpiece(board, coords.substr(2,2)) == chosen){
 						democracy = true;
 						break;
 					}

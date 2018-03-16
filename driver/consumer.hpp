@@ -3,9 +3,15 @@
 #include <string>
 using namespace std;
 
-void move(PyObject* instance, string loc1, string loc2);
+void move(PyObject* instance, string coor);
 void startGame(PyObject* instance);
-void getBoards(PyObject* instance, string board[8][8]);
+void updateBoard(PyObject* instance, string board[8][8]);
 void start();
 void kill();
-bool isValid(string board[8][8], string moveFrom, string moveTo);
+bool checkK(int moveFromCol, int moveFromRow, int moveToCol, int moveToRow, string info2);
+bool checkB(string board[8][8], int moveFromCol, int moveFromRow, int moveToCol, int moveToRow);
+bool checkN(string board[8][8], int moveFromCol, int moveFromRow, int moveToCol, int moveToRow);
+bool checkR(string board[8][8], int moveFromCol, int moveFromRow, int moveToCol, int moveToRow);
+bool checkP(string board[8][8], int moveFromCol, int moveFromRow, int moveToCol, int moveToRow, string info2);
+bool isValid(string board[8][8], string coor);
+string getPiece(string board[8][8], string loc);
