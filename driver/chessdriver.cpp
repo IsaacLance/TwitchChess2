@@ -72,7 +72,7 @@ void ChessDriver::producer(){
 	//Login();
 	this_thread::sleep_for(10ms);
 	//Join(DEFAULT_CHANNEL);
-	
+
 	//RUN main loop
 	int bytes_recieved;
 	//queue <char*> msgs;
@@ -183,13 +183,17 @@ void ChessDriver::consumer(){
 			}
 			if (winner_count > 0){
                 cout << "Tally: " <<winner_count<< "\n" << flush;
-				string chosen = getPiece(board, winner.substr(0,2));
+                string chosen = getPiece(board, winner.substr(0,2));
 				move(instance, winner);
                 this_thread::sleep_for(2s);
 				updateBoard(instance, board);
 				if (getPiece(board, winner.substr(2,2)) != chosen){
 					democracy = false;
-				}
+				} else{
+                    Chat("Winning move was " + winner, DEFAULT_CHANNEL);
+                    this_thread::sleep_for(7s);
+
+                }
 			}
 		}
 		else{ //ANARCHY MODE!!!
@@ -217,7 +221,10 @@ void ChessDriver::consumer(){
 					this_thread::sleep_for(2s);
 					updateBoard(instance, board);
 					if (getPiece(board, coords.substr(2,2)) == chosen){
-						democracy = true;
+                        Chat("Winning move was " + winner, DEFAULT_CHANNEL);
+                        this_thread::sleep_for(7s);
+                        Chat("The King is safe!!", DEFAULT_CHANNEL);
+                        democracy = true;
 						break;
 					}
 				}
