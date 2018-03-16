@@ -2,7 +2,7 @@
 ### CIS 330 project by Justin Robles and Isaac Lance
 
 ## Requirements
-Python 3
+Python 2.7 and above
 Selenium
 Chromedriver (included in repo)
 Twitch API
