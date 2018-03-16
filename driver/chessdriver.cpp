@@ -26,6 +26,8 @@ http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
 #include <thread>
 #include <queue>
 #include <vector>
+#include <Python/Python.h>
+#include "consumer.hpp"
 
 using namespace std; //FIXME?: using std:"function" may be better
 #define PORT "6667" //Required by TWITCH.TV
@@ -86,8 +88,9 @@ void ChessDriver::producer(){
 			middleman = middleman.substr(end_index+1, string::npos);//Chop middleman
 			string parsed = Parse(msg); //Parse the message. . .
 			if (parsed[0] != '^'){//If it's a valid command . . .
-				cout << "Valid input--" <<parsed <<"\n"<< flush;
-				shared_queue.push(msg);//Push it to the shared queue
+				//cout << "Valid input--" <<parsed <<"\n"<< flush;
+				cout << "Middleman: " << middleman << flush;
+				shared_queue.push(parsed);//Push it to the shared queue
 			}
 		}
 		
@@ -102,14 +105,28 @@ void ChessDriver::producer(){
 
 void ChessDriver::consumer(){
 	cout << "Consumer thread running\n" << flush;
+
+	start();
+	PyObject* module = PyImport_ImportModule("moveMaker");
+	PyObject* klass = PyObject_GetAttrString(module, "MoveMaker");
+	PyObject* instance = PyInstance_New(klass, NULL, NULL);
+	PyObject* result = PyObject_CallMethod(instance, "signin", NULL);
+	startGame(instance);
+	string s[8][8];
+
 	while(true){
 		this_thread::sleep_for(10ms);
 		if(shared_queue.empty()){
 			continue;
 		}
 		cout << "Consumed: "<< shared_queue.front()<<"\n"<<flush;
+		string loc1 = shared_queue.front().substr(0, 2);
+		string loc2 = shared_queue.front().substr(3, 2);
+		move(instance, loc1, loc2);
+		getBoards(instance, s);
 		shared_queue.pop();
 	}
+	kill();
 }
 //
 //Private Methods

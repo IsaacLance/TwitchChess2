@@ -35,8 +35,12 @@ class ChessDriver{
 		bool Join(std::string channel);
 		bool Login();
 		std::string Parse(std::string msg);
-		
-		//void sendPong(char* buf);
-		//void msgHandle(char* buf);
+    
+        //Private variables for consumer
+
+    
+        //Priavte Methods for consumer
+
+    
 };
 #endif

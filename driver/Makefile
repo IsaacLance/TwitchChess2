@@ -4,7 +4,7 @@ CFLAGS = -std=c++14
 %.o : %.cpp
 	$(CXX) -c $(CFLAGS) $<
 
-test.exe:  
+driver:  
 	g++ -std=c++14 -o driver chessdriver.cpp consumer.o -pthread -lPython
 
 
