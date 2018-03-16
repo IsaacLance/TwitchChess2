@@ -37,6 +37,7 @@ class ChessDriver{
 		bool sendData(std::string msg);
 		bool Join(std::string channel);
 		bool Login();
+		bool Chat(std::string msg, std::string channel);
 		std::string Parse(std::string msg);
     
         //Private variables for consumer

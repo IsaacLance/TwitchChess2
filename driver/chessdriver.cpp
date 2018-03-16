@@ -125,6 +125,7 @@ void ChessDriver::consumer(){
 	steady_clock::time_point time2;
 	while(true){
 		if (democracy){
+            Chat("DEMOCRACY ROUND", DEFAULT_CHANNEL);
 			//Set times
 			time1 = steady_clock::now();
 			time2 = steady_clock::now();
@@ -136,10 +137,17 @@ void ChessDriver::consumer(){
 			int winner_count = 0; //Update this if we make a count greater then it
 			string winner = "NoInput";
 			//Get a move democratically
-			while((time_span.count()) < 7.0){
-                time_span = duration_cast<duration<double>>(time2 - time1);
+            int counter = 0;
+			while((time_span.count()) < 20.0){
+                if(time_span.count > counter){
+                    // TODO: FIX THIS BEFORE PRESENTATION
+                    //Chat(string(20 - counter),DEFAULT_CHANNEL)
+                    counter++;
+                }
                 time2 = steady_clock::now();
-				this_thread::sleep_for(10ms); 
+                time_span = duration_cast<duration<double>>(time2 - time1);
+
+                this_thread::sleep_for(10ms);
 				//Lock
 				queue_mutex.lock();
 				if(shared_queue.empty()){
@@ -185,6 +193,7 @@ void ChessDriver::consumer(){
 			}
 		}
 		else{ //ANARCHY MODE!!!
+            Chat("ANARCHY MODE", DEFAULT_CHANNEL);
 			while(true){
 				this_thread::sleep_for(10ms); 
 				//Lock
@@ -272,6 +281,11 @@ bool ChessDriver::Login(){
 	string P = "PASS oauth:" + pass + "\r\n";
 	string N = "NICK " + user + "\r\n";
 	return(sendData(P) && sendData(N));
+}
+
+bool ChessDriver::Chat(string msg, string channel){
+    string output = "PRIVMSG " + channel + " :" + msg + "\r\n";
+    return sendData(output);
 }
 
 string ChessDriver::Parse(string msg){
