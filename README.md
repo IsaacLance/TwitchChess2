@@ -19,7 +19,7 @@ make Reset
 ### Note:
 * If this fails it is most likely because the python path is incorrect. For example, on my laptop I need to include "Python/Python.h" but when I researched it other people include just "Python.h".
 * Also Running the project will not stream to twitch but a chrome window will open and if you go to my channel (https://www.twitch.tv/yung_jrobes) you should be able to use the chat to test it even if it offline.
-* The core of the code is in driver directory
+* The core of the code is in the driver directory
 
 
 # Authors
