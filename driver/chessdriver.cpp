@@ -8,7 +8,6 @@ http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
 */
 
 #include "chessdriver.hpp"
-#include "consumer.hpp"
 #include <iostream>
 #include <cstdio>
 #include <cstdlib>
@@ -30,6 +29,8 @@ http://man7.org/linux/man-pages/man3/getaddrinfo.3.html
 #include <Python/Python.h>
 #include <mutex>
 #include <map>
+#include "consumer.hpp"
+
 
 using namespace std; //FIXME?: using std:"function" may be better
 using namespace std::chrono;
@@ -118,6 +119,7 @@ void ChessDriver::consumer(){
 	PyObject* result = PyObject_CallMethod(instance, "signin", NULL);
 	startGame(instance);
 	string board[8][8];
+    updateBoard(instance, board);
 	bool democracy = true;
 	steady_clock::time_point time1;
 	steady_clock::time_point time2;
@@ -126,7 +128,7 @@ void ChessDriver::consumer(){
 			//Set times
 			time1 = steady_clock::now();
 			time2 = steady_clock::now();
-			duration<double> time_span;
+			duration<double> time_span = duration_cast<duration<double>>(time2 - time1);;
 			//Set up maps, user -> command, and command -> count
 			map<string, string> votes;
 			map<string, int> tally;
@@ -134,7 +136,9 @@ void ChessDriver::consumer(){
 			int winner_count = 0; //Update this if we make a count greater then it
 			string winner = "NoInput";
 			//Get a move democratically
-			while((time_span.count()) < 20.0){
+			while((time_span.count()) < 7.0){
+                time_span = duration_cast<duration<double>>(time2 - time1);
+                time2 = steady_clock::now();
 				this_thread::sleep_for(10ms); 
 				//Lock
 				queue_mutex.lock();
@@ -153,7 +157,13 @@ void ChessDriver::consumer(){
 				if (isValid(board, coords)){
 					string name = command.substr(6, string::npos);
 					//Set the two map values since it was valid
-					votes[name] = coords;
+					if (votes[name] == coords){
+                        continue;
+                    }
+                    else{
+                        tally[votes[name]]--;
+                    }
+                    votes[name] = coords;
 					tally[coords]++;     //If no entry exists, it is initialized to 0! Awesome
 					if (tally[coords] > winner_count){
 						//Set new winner
@@ -161,15 +171,15 @@ void ChessDriver::consumer(){
 						winner = coords;
 					}
 				}
-			time_span = duration_cast<duration<double>>(time2 - time1)
-			time2 = steady_clock::now();
+
 			}
 			if (winner_count > 0){
+                cout << "Tally: " <<winner_count<< "\n" << flush;
 				string chosen = getPiece(board, winner.substr(0,2));
 				move(instance, winner);
-				this_thread::sleep_for(2s)
+                this_thread::sleep_for(2s);
 				updateBoard(instance, board);
-				if (getpiece(board, winner.substr(2,2)) != chosen){
+				if (getPiece(board, winner.substr(2,2)) != chosen){
 					democracy = false;
 				}
 			}
@@ -197,7 +207,7 @@ void ChessDriver::consumer(){
 					move(instance, coords);
 					this_thread::sleep_for(2s);
 					updateBoard(instance, board);
-					if (getpiece(board, coords.substr(2,2)) == chosen){
+					if (getPiece(board, coords.substr(2,2)) == chosen){
 						democracy = true;
 						break;
 					}
@@ -326,6 +336,5 @@ string ChessDriver::Parse(string msg){
 int main(){
 	//mutex m;
 	queue<string> shared_queue;
-	ChessDriver driver = ChessDriver("crowdsourcechess", "knx6ly88bw0bqwmvckrbp2r288ffc6", shared_queue);
-	driver.run();
+	ChessDriver("crowdsourcechess", "knx6ly88bw0bqwmvckrbp2r288ffc6", shared_queue).run();
 }

@@ -9,7 +9,7 @@ using namespace std;
 
 void move(PyObject* instance, string coor){
     string loc1 = coor.substr(0, 2);
-    string loc2 = coor.substr(3, 2);
+    string loc2 = coor.substr(2, 2);
     PyObject* temp = PyObject_CallMethod(instance, "move", "(ss)", loc1.c_str(), loc2.c_str());
 }
 
@@ -142,7 +142,9 @@ bool checkK(int moveFromCol, int moveFromRow, int moveToCol, int moveToRow, stri
 bool isValid(string board[8][8], string coor){
     string boardInd= "ABCDEFGH";
     string moveFrom = coor.substr(0, 2);
-    string moveTo = coor.substr(3, 2);
+    string moveTo = coor.substr(2, 2);
+    cout << "MOVEFROM " << moveFrom << endl;
+    cout << "MOVETO " << moveTo << endl;
     int moveFromCol = boardInd.find(toupper(moveFrom.at(0)));
     int moveFromRow = 8 - stoi(moveFrom.substr(1, 1));
     int moveToCol = boardInd.find(toupper(moveTo.at(0)));
