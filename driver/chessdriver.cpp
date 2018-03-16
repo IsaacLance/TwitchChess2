@@ -85,7 +85,7 @@ void ChessDriver::producer(){
 		//Begin parsing in this scope or we get problems.
 		buff[bytes_recieved] = '\0';//Null terminate so we can parse
 		middleman.append(buff); //Strings can append char*'s which is nice
-		
+		cout << middleman + " 1 " << flush;
 		size_t end_index = middleman.find("\n"); //Need middleman to pre-process the data
 		if (end_index !=string::npos){
 			string msg = middleman.substr(0, end_index+1);//get one message
@@ -139,10 +139,9 @@ void ChessDriver::consumer(){
 			//Get a move democratically
             int counter = 0;
 			while((time_span.count()) < 20.0){
-                if(time_span.count > counter){
-                    // TODO: FIX THIS BEFORE PRESENTATION
-                    //Chat(string(20 - counter),DEFAULT_CHANNEL)
-                    counter++;
+                if(time_span.count() > counter){
+                    Chat(to_string(20 - counter) + " seconds left",DEFAULT_CHANNEL);
+                    counter+=5;
                 }
                 time2 = steady_clock::now();
                 time_span = duration_cast<duration<double>>(time2 - time1);
